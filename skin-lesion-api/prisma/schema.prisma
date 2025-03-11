@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Analysis {
+  id               String   @id @default(uuid())
+  imagePath        String
+  status           String   @default("pending") // pending, processing, completed, failed
+  result           Json?
+  diagnosisResult  String?
+  confidence       Float?
+  possibleConditions Json?
+  recommendations  String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  name       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
