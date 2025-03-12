@@ -1,13 +1,30 @@
 import app from './app';
 import config from './config';
 import { PrismaClient } from '@prisma/client';
+import mlService from './services/mlService';
 
 const prisma = new PrismaClient();
 
 // Start server
-const server = app.listen(config.port, () =>
+const server = app.listen(config.port, async () =>
 {
     console.log(`Server running in ${config.env} mode on port ${config.port}`);
+
+    // Ensure ML model is initialized
+    try
+    {
+        if (mlService.isModelReady())
+        {
+            console.log('ML model is ready for predictions');
+        } else
+        {
+            console.log('ML model is not available, the server will use simulated results');
+            console.log('Run "npm run download-model" to download a pre-trained model');
+        }
+    } catch (error)
+    {
+        console.error('Error initializing ML model:', error);
+    }
 });
 
 // Handle unhandled promise rejections

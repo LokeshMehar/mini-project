@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import imageProcessingService from './imageProcessingService';
+import mlService from './mlService';
 import { AnalysisStatus, ResultsResponse } from '../types';
+import fs from 'fs';
 
 const prisma = new PrismaClient();
 
@@ -57,25 +59,29 @@ class AnalysisService
             // Process the image
             const processedImageBuffer = await imageProcessingService.processImage(imagePath);
 
-            // Here's where we would normally run the ML model
-            // Since you asked to exclude the actual ML part, we'll simulate it
-
-            // Simulate ML processing delay (1-3 seconds)
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-
-            // Simulate ML results
-            const simulatedResults = this.simulateMlResults();
+            // Run ML model if available, otherwise use simulated results
+            let results;
+            if (mlService.isModelReady())
+            {
+                // Use TensorFlow model for prediction
+                results = await mlService.predict(processedImageBuffer);
+            } else
+            {
+                // Fall back to simulated results
+                console.log('ML model not available, using simulated results');
+                results = this.simulateMlResults();
+            }
 
             // Update the analysis with results
             await prisma.analysis.update({
                 where: { id: jobId },
                 data: {
                     status: 'completed',
-                    diagnosisResult: simulatedResults.diagnosis,
-                    confidence: simulatedResults.confidence,
-                    possibleConditions: simulatedResults.possibleConditions,
-                    recommendations: simulatedResults.recommendations,
-                    result: simulatedResults
+                    diagnosisResult: results.diagnosis,
+                    confidence: results.confidence,
+                    possibleConditions: results.possibleConditions,
+                    recommendations: results.recommendations,
+                    result: results
                 }
             });
         } catch (error)
@@ -87,7 +93,7 @@ class AnalysisService
                 where: { id: jobId },
                 data: {
                     status: 'failed',
-                    result: { error: 'Processing failed' }
+                    result: { error: 'Processing failed', message: error instanceof Error ? error.message : 'Unknown error' }
                 }
             });
         }
@@ -114,8 +120,8 @@ class AnalysisService
             let estimatedTime: number | undefined;
             if (analysis.status === 'processing')
             {
-                // Estimate 5 seconds for processing time
-                estimatedTime = 5;
+                // Estimate time based on model availability
+                estimatedTime = mlService.isModelReady() ? 10 : 5;
             }
 
             return {
@@ -192,7 +198,9 @@ class AnalysisService
             { name: 'Basal Cell Carcinoma', probability: 0.05 + Math.random() * 0.1 },
             { name: 'Squamous Cell Carcinoma', probability: 0.05 + Math.random() * 0.1 },
             { name: 'Actinic Keratosis', probability: 0.05 + Math.random() * 0.2 },
-            { name: 'Benign Keratosis', probability: 0.4 + Math.random() * 0.3 }
+            { name: 'Benign Keratosis', probability: 0.4 + Math.random() * 0.3 },
+            { name: 'Dermatofibroma', probability: 0.05 + Math.random() * 0.1 },
+            { name: 'Vascular Lesion', probability: 0.05 + Math.random() * 0.1 }
         ];
 
         // Sort by probability
