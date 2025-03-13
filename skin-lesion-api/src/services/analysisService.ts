@@ -191,7 +191,45 @@ class AnalysisService
      * Simulate ML model results for testing
      * @returns Simulated diagnosis results
      */
+    private simulateMlResults()
+    {
+        const conditions = [
+            { name: 'Melanoma', probability: 0.05 + Math.random() * 0.1 },
+            { name: 'Basal Cell Carcinoma', probability: 0.05 + Math.random() * 0.1 },
+            { name: 'Squamous Cell Carcinoma', probability: 0.05 + Math.random() * 0.1 },
+            { name: 'Actinic Keratosis', probability: 0.05 + Math.random() * 0.2 },
+            { name: 'Benign Keratosis', probability: 0.4 + Math.random() * 0.3 },
+            { name: 'Dermatofibroma', probability: 0.05 + Math.random() * 0.1 },
+            { name: 'Vascular Lesion', probability: 0.05 + Math.random() * 0.1 }
+        ];
 
+        // Sort by probability
+        conditions.sort((a, b) => b.probability - a.probability);
+
+        const topCondition = conditions[0];
+        const confidence = topCondition.probability;
+
+        let recommendations = '';
+        if (topCondition.name === 'Melanoma' ||
+            topCondition.name === 'Basal Cell Carcinoma' ||
+            topCondition.name === 'Squamous Cell Carcinoma')
+        {
+            recommendations = 'Please consult a dermatologist immediately for further evaluation.';
+        } else if (topCondition.name === 'Actinic Keratosis')
+        {
+            recommendations = 'Recommend dermatologist visit for evaluation and treatment options.';
+        } else
+        {
+            recommendations = 'The lesion appears benign, but monitor for any changes in size, shape, or color.';
+        }
+
+        return {
+            diagnosis: topCondition.name,
+            confidence: parseFloat(confidence.toFixed(4)),
+            possibleConditions: conditions,
+            recommendations
+        };
+    }
 }
 
 export default new AnalysisService();
