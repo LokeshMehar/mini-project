@@ -1,6 +1,6 @@
-import analysisController from './analysisController';
+// import analysisController from './analysisController';
 
-export
-{
-    analysisController
-};
+// export
+// {
+//     analysisController
+// };

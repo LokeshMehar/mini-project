@@ -25,13 +25,13 @@ const upload = multer({
 });
 
 // GET /test route
-router.get('/test', (req: Request, res: Response) =>
+router.get('/test1', (req: Request, res: Response) =>
 {
     res.send('this is the result from the ml model');
 });
 
 // POST /test route
-router.post('/test', upload.single('image'), async (req: Request, res: Response) =>
+router.post('/test1', upload.single('image'), async (req: Request, res: Response) =>
 {
     try
     {

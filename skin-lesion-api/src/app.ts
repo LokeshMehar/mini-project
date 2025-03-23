@@ -5,7 +5,7 @@ import morgan from 'morgan';
 import path from 'path';
 import routes from './routes';
 import config from './config';
-import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
+// import { errorHandler, notFoundHandler } from './middlewares/errorHandler';
 
 // Create Express app
 const app: Express = express();
@@ -43,9 +43,9 @@ app.get('/health', (req, res) =>
 });
 
 // 404 handler
-app.use(notFoundHandler);
+// app.use(notFoundHandler);
 
-// Error handler middleware
-app.use(errorHandler);
+// // Error handler middleware
+// app.use(errorHandler);
 
 export default app;
